@@ -24,3 +24,6 @@ en:
     GridFieldTitleSubmittedAll: All submitted items
     GridFieldTitleAssignedYour: Your pending items
     GridFieldTitleSubmittedYour: Your submitted items
+  WorkflowEmbargoExpiryExtension:
+    REQUESTED_PUBLISH_DATE_H3: Expiry and Embargo
+    REQUESTED_PUBLISH_DATE_INTRO: "<p>Enter a date and/or time to specify embargo and expiry dates. <em>Note:</em> along with your content changes, these settings won't take effect until any approval actions are run.</p>"

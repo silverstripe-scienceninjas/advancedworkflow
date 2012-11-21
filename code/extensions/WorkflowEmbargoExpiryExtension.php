@@ -24,6 +24,8 @@ class WorkflowEmbargoExpiryExtension extends DataExtension {
 		'workflowService'		=> '%$WorkflowService',
 	);
 
+	public static $showTimePicker = true;
+
 	/**
 	 * @var WorkflowService
 	 */
@@ -33,12 +35,27 @@ class WorkflowEmbargoExpiryExtension extends DataExtension {
 	 * @param FieldList $fields 
 	 */
 	public function updateCMSFields(FieldList $fields) {
+
+		// Add timepicker functionality
+		// @see https://github.com/trentrichardson/jQuery-Timepicker-Addon
+		Requirements::css(ADVANCED_WORKFLOW_DIR . '/thirdparty/javascript/jquery-ui/timepicker/jquery-ui-timepicker-addon.css');
+		Requirements::css(ADVANCED_WORKFLOW_DIR . '/css/WorkflowFieldTimePicker.css');
+		Requirements::javascript(ADVANCED_WORKFLOW_DIR . '/thirdparty/javascript/jquery-ui/timepicker/jquery-ui-sliderAccess.js');
+		Requirements::javascript(ADVANCED_WORKFLOW_DIR . '/thirdparty/javascript/jquery-ui/timepicker/jquery-ui-timepicker-addon.js');
+		Requirements::javascript(ADVANCED_WORKFLOW_DIR . '/javascript/WorkflowField.js');
+
+
 		// if there is a workflow applied, we can't set the publishing date directly, only the 'desired'
 		// publishing date
 		$effective = $this->workflowService->getDefinitionFor($this->owner);
 		
 		if ($effective) {
 			$fields->addFieldsToTab('Root.PublishingSchedule', array(
+				new HeaderField('PublishDateHeader', _t('REQUESTED_PUBLISH_DATE_H3', 'Expiry and Embargo'), 3),
+				new LiteralField('PublishDateIntro', _t(
+					'WorkflowEmbargoExpiryExtension.REQUESTED_PUBLISH_DATE_INTRO',
+					"<p>Enter a date and/or time to specify embargo and expiry dates. <em>Note:</em> Along with your content changes, these settings won't take effect until any approval actions are run.</p>"
+				)),
 				$dt = new Datetimefield('DesiredPublishDate', _t('AdvancedWorkflow.REQUESTED_PUBLISH_DATE', 'Requested publish date and time')),
 				$ut = new Datetimefield('DesiredUnPublishDate', _t('AdvancedWorkflow.REQUESTED_UNPUBLISH_DATE', 'Requested un-publish date and time')),
 				Datetimefield::create('PublishOnDate', _t('AdvancedWorkflow.PUBLISH_ON', 'Publish date and time'))->setDisabled(true),
@@ -52,9 +69,13 @@ class WorkflowEmbargoExpiryExtension extends DataExtension {
 		}
 
 		$dt->getDateField()->setConfig('showcalendar', true);
-		$dt->getTimeField()->setConfig('showdropdown', true);
 		$ut->getDateField()->setConfig('showcalendar', true);
-		$ut->getTimeField()->setConfig('showdropdown', true);
+
+		// Enable a jQuery-UI timepicker widget
+		if(self::$showTimePicker) {
+			$dt->getTimeField()->addExtraClass('hasTimePicker');
+			$ut->getTimeField()->addExtraClass('hasTimePicker');
+		}
 	}
 
 	public function onBeforeWrite() {
